@@ -1,0 +1,22 @@
+BEGIN;
+
+CREATE TYPE store_status AS ENUM ( 'ACTIVE', 'PASSIVE', 'DELETED' );
+
+CREATE TABLE stores (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  vendor_id UUID UNIQUE NOT NULL,
+  name VARCHAR(100) UNIQUE NOT NULL,
+  slug VARCHAR UNIQUE NOT NULL,
+  description VARCHAR,
+  logo VARCHAR,
+  phone VARCHAR(14) NOT NULL,
+  email VARCHAR(100) UNIQUE NOT NULL,
+  address VARCHAR NOT NULL,
+  status store_status NOT NULL DEFAULT 'ACTIVE',
+  created_at TIMESTAMP(3) NOT NULL DEFAULT now(),
+  updated_at TIMESTAMP(3) NOT NULL DEFAULT now()
+);
+
+ALTER TABLE stores ADD FOREIGN KEY (vendor_id) REFERENCES vendors (user_id) ON DELETE RESTRICT;
+
+COMMIT;
