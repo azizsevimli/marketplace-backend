@@ -3,6 +3,7 @@ import dotenv from "dotenv";
 
 import authRoutes from "./modules/auth/auth.routes.js";
 import storeRoutes from "./modules/store/store.routes.js";
+import categoryRoutes from "./modules/category/category.routes.js";
 
 dotenv.config();
 
@@ -11,6 +12,7 @@ const port = process.env.PORT || 3000;
 
 app.use("/api/auth", authRoutes);
 app.use("/api/store", storeRoutes);
+app.use("/api/category", categoryRoutes);
 
 app.listen(port, () => {
   console.log(`Sunucu http://localhost:${port} üzeinde aktif`);
