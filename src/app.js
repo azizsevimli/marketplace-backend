@@ -5,6 +5,7 @@ import authRoutes from "./modules/auth/auth.routes.js";
 import storeRoutes from "./modules/store/store.routes.js";
 import categoryRoutes from "./modules/category/category.routes.js";
 import subcategoryRoutes from "./modules/subcategory/subcategory.routes.js";
+import productRoutes from "./modules/product/product.routes.js";
 
 dotenv.config();
 
@@ -21,6 +22,7 @@ app.use("/api/auth", authRoutes);
 app.use("/api/store", storeRoutes);
 app.use("/api/category", categoryRoutes);
 app.use("/api/subcategory", subcategoryRoutes);
+app.use("/api/product", productRoutes);
 
 app.listen(port, () => {
   console.log(`Sunucu http://localhost:${port} üzeinde aktif`);
