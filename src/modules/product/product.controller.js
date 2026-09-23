@@ -11,12 +11,20 @@ async function createProduct(req, res) {
       price,
       stockQuantity,
       sku,
+      images,
     } = req.body;
 
     if (!storeId || !title || !description || !price || !stockQuantity) {
       return res
         .status(400)
         .json({ success: false, message: "Eksik veri gönderildi." });
+    }
+
+    if (images.length == 0) {
+      return res.status(400).json({
+        success: false,
+        message: "Yüklenecek resim bulunamadı. Ürün oluşturulamadı.",
+      });
     }
 
     const result = await productService.createProduct({
@@ -28,11 +36,12 @@ async function createProduct(req, res) {
       price,
       stockQuantity,
       sku,
+      images,
     });
 
     return res.status(201).json({
       success: true,
-      message: "Ürün oluşturuldu.",
+      message: "Ürün resimleri ile beraber oluşturuldu.",
       result,
     });
   } catch (e) {
@@ -72,6 +81,7 @@ async function getProductsById(req, res) {
 async function getProductsByStoreId(req, res) {
   try {
     const storeId = req.query.storeId;
+    console.log(storeId);
     const result = await productService.getProductsByStoreId({ storeId });
 
     return res.status(200).json({
@@ -83,7 +93,7 @@ async function getProductsByStoreId(req, res) {
     console.log(e);
 
     if (e.code == "NOT_FOUND") {
-      res.status(404).json({
+      return res.status(404).json({
         success: false,
         message: e.message,
       });
@@ -99,13 +109,14 @@ async function getProductsByStoreId(req, res) {
 async function updateProductDetail(req, res) {
   try {
     const id = req.params.id;
-    const { title, description, sku } = req.body;
+    const { title, description, sku, status } = req.body;
 
     const result = await productService.updateProductDetail({
       id,
       title,
       description,
       sku,
+      status,
     });
     return res
       .status(200)
