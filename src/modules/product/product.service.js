@@ -106,6 +106,56 @@ async function getProductsByStoreId({ storeId }) {
   return products;
 }
 
+async function getProductsByFilter({
+  categoryId = null,
+  subcategoryId = null,
+  minPrice = null,
+  maxPrice = null,
+}) {
+  const values = [];
+  const conditions = [];
+
+  if (categoryId) {
+    values.push(categoryId);
+    conditions.push(`category_id = $${values.length}`);
+  }
+
+  if (subcategoryId) {
+    values.push(subcategoryId);
+    conditions.push(`subcategory_id = $${values.length}`);
+  }
+
+  if (minPrice) {
+    values.push(minPrice);
+    conditions.push(`price >= $${values.length}`);
+  }
+
+  if (maxPrice) {
+    values.push(maxPrice);
+    conditions.push(`price <= $${values.length}`);
+  }
+
+  const query = `
+    SELECT * FROM products
+    ${conditions.length ? `WHERE ${conditions.join(" AND ")}` : ""}
+    ORDER BY created_at DESC
+  `;
+
+  const result = await Pool.query(query, values);
+
+  if (result.rowCount == 0) {
+    const error = new Error("Filtreye uygun ürün bulunamadı.");
+    error.code = "NOT_FOUND";
+    throw error;
+  }
+
+  const products = result.rows;
+  return products;
+}
+
+/*------------------------*/
+/*--Update-Fonksiyonları--*/
+/*------------------------*/
 async function updateProductDetail({
   id,
   title = null,
@@ -143,6 +193,7 @@ export default {
   createProduct,
   getProductById,
   getProductsByStoreId,
+  getProductsByFilter,
   updateProductDetail,
   updateProductStock,
   updateProductPrice,

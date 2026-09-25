@@ -106,6 +106,42 @@ async function getProductsByStoreId(req, res) {
   }
 }
 
+async function getProductsByFilter(req, res) {
+  try {
+    const { categoryId, subcategoryId, minPrice, maxPrice } = req.query;
+    console.log(
+      `category: ${categoryId} ||| subcategory: ${subcategoryId} ||| minPrice: ${minPrice} ||| maxPrice: ${maxPrice}`,
+    );
+
+    const result = await productService.getProductsByFilter({
+      categoryId,
+      subcategoryId,
+      minPrice,
+      maxPrice,
+    });
+
+    return res.status(200).json({
+      success: true,
+      message: "Mağaza ürün bilgileri getirildi.",
+      result,
+    });
+  } catch (e) {
+    console.log(e);
+
+    if (e.code == "NOT_FOUND") {
+      return res.status(404).json({
+        success: false,
+        message: e.message,
+      });
+    }
+
+    return res.status(500).json({
+      success: false,
+      message: "Filitre ile ürün bilgileri getirilirken bir hata oluştu.",
+    });
+  }
+}
+
 async function updateProductDetail(req, res) {
   try {
     const id = req.params.id;
@@ -186,6 +222,7 @@ export default {
   createProduct,
   getProductsById,
   getProductsByStoreId,
+  getProductsByFilter,
   updateProductDetail,
   updateProductStock,
   updateProductPrice,

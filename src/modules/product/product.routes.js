@@ -7,6 +7,7 @@ import productController from "./product.controller.js";
 const router = express.Router();
 
 router.get("/store", productController.getProductsByStoreId);
+router.get("/filter", productController.getProductsByFilter);
 router.get("/:id", productController.getProductsById);
 
 router.post(
