@@ -8,6 +8,7 @@ import subcategoryRoutes from "./modules/subcategory/subcategory.routes.js";
 import productRoutes from "./modules/product/product.routes.js";
 import favoriteRoutes from "./modules/favorite/favorite.routes.js";
 import cartRoutes from "./modules/cart/cart.routes.js";
+import cartItemRoutes from "./modules/cart_item/cartItem.routes.js";
 
 dotenv.config();
 
@@ -27,6 +28,7 @@ app.use("/api/subcategory", subcategoryRoutes);
 app.use("/api/product", productRoutes);
 app.use("/api/favorite", favoriteRoutes);
 app.use("/api/cart", cartRoutes);
+app.use("/api/cart-item", cartItemRoutes);
 
 app.listen(port, () => {
   console.log(`Sunucu http://localhost:${port} üzeinde aktif`);
