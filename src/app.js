@@ -9,6 +9,7 @@ import productRoutes from "./modules/product/product.routes.js";
 import favoriteRoutes from "./modules/favorite/favorite.routes.js";
 import cartRoutes from "./modules/cart/cart.routes.js";
 import cartItemRoutes from "./modules/cart_item/cartItem.routes.js";
+import orderRoutes from "./modules/order/order.routes.js";
 
 dotenv.config();
 
@@ -29,6 +30,7 @@ app.use("/api/product", productRoutes);
 app.use("/api/favorite", favoriteRoutes);
 app.use("/api/cart", cartRoutes);
 app.use("/api/cart-item", cartItemRoutes);
+app.use("/api/order", orderRoutes);
 
 app.listen(port, () => {
   console.log(`Sunucu http://localhost:${port} üzeinde aktif`);
