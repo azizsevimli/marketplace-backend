@@ -11,6 +11,7 @@ import cartRoutes from "./modules/cart/cart.routes.js";
 import cartItemRoutes from "./modules/cart_item/cartItem.routes.js";
 import orderRoutes from "./modules/order/order.routes.js";
 import orderItemRoutes from "./modules/order_item/orderItem.routes.js";
+import paymentRoutes from "./modules/payment/payment.routes.js";
 
 dotenv.config();
 
@@ -33,6 +34,7 @@ app.use("/api/cart", cartRoutes);
 app.use("/api/cart-item", cartItemRoutes);
 app.use("/api/order", orderRoutes);
 app.use("/api/order-item", orderItemRoutes);
+app.use("/api/payment", paymentRoutes);
 
 app.listen(port, () => {
   console.log(`Sunucu http://localhost:${port} üzeinde aktif`);
