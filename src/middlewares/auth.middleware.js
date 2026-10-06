@@ -11,6 +11,7 @@ function authMiddleware(req, res, next) {
   try {
     const payload = jwt.verify(token, process.env.JWT_TOKEN_SECRET_KEY);
     req.user = { id: payload.id, role: payload.role };
+
     next();
   } catch (e) {
     return res

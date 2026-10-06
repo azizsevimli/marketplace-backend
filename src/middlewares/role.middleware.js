@@ -1,6 +1,4 @@
 function adminMiddleware(req, res, next) {
-  console.log(req.user);
-
   if (!req.user || req.user.role != "ADMIN") {
     return res
       .status(403)
@@ -11,8 +9,6 @@ function adminMiddleware(req, res, next) {
 }
 
 function vendorMiddleware(req, res, next) {
-  console.log(req.user);
-
   if (!req.user || req.user.role != "VENDOR") {
     return res
       .status(403)
