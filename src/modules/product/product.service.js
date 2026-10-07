@@ -153,6 +153,22 @@ async function getProductsByFilter({
   return products;
 }
 
+async function getProductStats() {
+  const query = `
+    SELECT 
+      COUNT(*) AS total,
+      COUNT(*) FILTER (WHERE status = 'PENDING') AS pending,
+      COUNT(*) FILTER (WHERE status = 'APPROVED') AS active,
+      COUNT(*) FILTER (WHERE status = 'PASSIVE') AS passive,
+      COUNT(*) FILTER (WHERE status = 'REJECTED') AS rejected
+    FROM products
+  `;
+  const result = await Pool.query(query);
+
+  const productStats = result.rows[0];
+  return productStats;
+}
+
 /*------------------------*/
 /*--Update-Fonksiyonları--*/
 /*------------------------*/
@@ -194,6 +210,7 @@ export default {
   getProductById,
   getProductsByStoreId,
   getProductsByFilter,
+  getProductStats,
   updateProductDetail,
   updateProductStock,
   updateProductPrice,

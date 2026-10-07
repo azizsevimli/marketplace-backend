@@ -27,6 +27,22 @@ async function getOrdersByCustomerId({ customerId }) {
   return orders;
 }
 
+async function getOrderStats() {
+  const query = `
+    SELECT 
+      COUNT(*) AS total,
+      COUNT(*) FILTER (WHERE status = 'PENDING') AS pending,
+      COUNT(*) FILTER (WHERE status = 'PREPARING') AS preparing,
+      COUNT(*) FILTER (WHERE status = 'COMPLETED') AS completed,
+      COUNT(*) FILTER (WHERE status = 'CANCELLED') AS cancelled 
+    FROM orders
+  `;
+  const result = await Pool.query(query);
+
+  const orderStats = result.rows[0];
+  return orderStats;
+}
+
 async function updateOrder({ id, status }) {
   const query = `UPDATE orders SET status = $1 WHERE id = $2 RETURNING *`;
   const values = [status, id];
@@ -36,4 +52,10 @@ async function updateOrder({ id, status }) {
   return order;
 }
 
-export default { createOrder, getOrder, getOrdersByCustomerId, updateOrder };
+export default {
+  createOrder,
+  getOrder,
+  getOrdersByCustomerId,
+  getOrderStats,
+  updateOrder,
+};
