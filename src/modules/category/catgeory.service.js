@@ -32,6 +32,34 @@ async function getCategoryById({ id }) {
   return category;
 }
 
+async function getCategoriesWithSub() {
+  const query = `
+    SELECT 
+      c.*,
+      COALESCE(
+        JSON_AGG(
+            JSON_BUILD_OBJECT(
+                'id', s.id,
+                'parentId', s.parent_id,
+                'title', s.title,
+                'slug', s.slug,
+                'createdAt', s.created_at,
+                'updatedAt', s.updated_at
+            )
+        ) FILTER (WHERE s.id IS NOT NULL),
+        '[]'::json
+      ) AS subcategories
+    FROM categories c
+    LEFT JOIN subcategories s
+      ON s.parent_id = c.id
+    GROUP BY c.id, c.title
+  `;
+  const result = await Pool.query(query);
+
+  const categories = result.rows;
+  return categories;
+}
+
 async function updateCategory({ id, title, slug }) {
   const query = `
     UPDATE categories SET title = $1, slug = $2, updated_at = now() WHERE id = $3 RETURNING *`;
@@ -48,9 +76,23 @@ async function updateCategory({ id, title, slug }) {
   return category;
 }
 
+async function deleteCategory({ id }) {
+  const query = `DELETE FROM categories WHERE id = $1`;
+  const values = [id];
+  const result = await Pool.query(query, values);
+
+  if (result.rowCount == 0) {
+    const error = new Error("ID'ye sahip kategori bulunamadı.");
+    error.code = "NOT_FOUND";
+    throw error;
+  }
+}
+
 export default {
   createCategory,
   getCategories,
   getCategoryById,
+  getCategoriesWithSub,
   updateCategory,
+  deleteCategory,
 };

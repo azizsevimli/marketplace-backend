@@ -123,9 +123,35 @@ async function updateSubcategory(req, res) {
   }
 }
 
+async function deleteSubcategory(req, res) {
+  try {
+    const id = req.params.id;
+    await subcategoryService.deleteSubcategory({ id });
+
+    return res
+      .status(200)
+      .json({ success: true, message: "Alt kategori silindi." });
+  } catch (e) {
+    console.log(e);
+
+    if (e.code == "NOT_FOUND") {
+      return res.status(404).json({
+        success: false,
+        message: e.message,
+      });
+    }
+
+    return res.status(500).json({
+      success: false,
+      message: "Alt kategori silinirken bir hata oluştu.",
+    });
+  }
+}
+
 export default {
   createSubcategory,
   getSubcategoriesByParentId,
   getSubcategoryById,
   updateSubcategory,
+  deleteSubcategory,
 };

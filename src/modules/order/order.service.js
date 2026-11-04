@@ -18,6 +18,22 @@ async function getOrder({ id }) {
   return order;
 }
 
+async function getOrders() {
+  const query = `
+    SELECT 
+      o.*,
+      CONCAT(u.first_name, ' ', u.last_name) AS customer_full_name 
+    FROM orders o
+    LEFT JOIN users u 
+      ON u.id = o.customer_id
+    ORDER BY created_at desc
+  `;
+  const result = await Pool.query(query);
+
+  const orders = result.rows;
+  return orders;
+}
+
 async function getOrdersByCustomerId({ customerId }) {
   const query = `SELECT * FROM orders WHERE customer_id = $1 ORDER BY created_at desc`;
   const values = [customerId];
@@ -55,6 +71,7 @@ async function updateOrder({ id, status }) {
 export default {
   createOrder,
   getOrder,
+  getOrders,
   getOrdersByCustomerId,
   getOrderStats,
   updateOrder,

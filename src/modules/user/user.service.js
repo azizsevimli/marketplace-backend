@@ -15,4 +15,16 @@ async function getUserStats() {
   return userStats;
 }
 
-export default { getUserStats };
+async function getCustomers() {
+  const query = `
+    SELECT id, first_name, last_name, email, phone, role, created_at, updated_at
+    FROM users
+    WHERE role = 'CUSTOMER'
+  `;
+  const result = await Pool.query(query);
+
+  const customers = result.rows;
+  return customers;
+}
+
+export default { getUserStats, getCustomers };
