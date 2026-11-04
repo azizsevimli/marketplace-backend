@@ -23,4 +23,11 @@ router.patch(
   subcategoryController.updateSubcategory,
 );
 
+router.delete(
+  "/:id",
+  authMiddleware,
+  roleMiddleware.adminMiddleware,
+  subcategoryController.deleteSubcategory,
+);
+
 export default router;

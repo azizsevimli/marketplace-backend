@@ -30,6 +30,26 @@ async function createStore({
   return result;
 }
 
+async function getStores() {
+  const query = `
+    SELECT 
+      s.*, 
+      CONCAT(u.first_name, ' ', u.last_name) AS vendor_full_name 
+    FROM stores s 
+    LEFT JOIN users u ON u.id = s.vendor_id
+  `;
+  const result = await Pool.query(query);
+
+  if (result.rowCount == 0) {
+    const error = new Error("Mağaza bulunamadı");
+    error.code = "NOT_FOUND";
+    throw error;
+  }
+
+  const stores = result.rows;
+  return stores;
+}
+
 async function getMyStore({ id }) {
   const query = `SELECT * FROM stores WHERE id = $1 LIMIT 1`;
   const values = [id];
@@ -96,4 +116,4 @@ async function updateMyStore({
   return store;
 }
 
-export default { createStore, getMyStore, updateMyStore };
+export default { createStore, getStores, getMyStore, updateMyStore };

@@ -34,7 +34,7 @@ async function getSubcategoryById({ id }) {
 }
 
 async function updateSubcategory({ id, parentId, title, slug }) {
-  const query = `UPDATE subcategories SET parent_id = $1, title = $2, slug = $3 WHERE id = $4 RETURNING *`;
+  const query = `UPDATE subcategories SET parent_id = $1, title = $2, slug = $3, updated_at = now() WHERE id = $4 RETURNING *`;
   const values = [parentId, title, slug, id];
   const result = await Pool.query(query, values);
 
@@ -48,9 +48,22 @@ async function updateSubcategory({ id, parentId, title, slug }) {
   return category;
 }
 
+async function deleteSubcategory({ id }) {
+  const query = `DELETE FROM subcategories WHERE id = $1`;
+  const values = [id];
+  const result = await Pool.query(query, values);
+
+  if (result.rowCount == 0) {
+    const error = new Error("Sepet ürünü bulunamadı.");
+    error.code = "NOT_FOUND";
+    throw error;
+  }
+}
+
 export default {
   createSubcategory,
   getSubcategoriesByParentId,
   getSubcategoryById,
   updateSubcategory,
+  deleteSubcategory,
 };

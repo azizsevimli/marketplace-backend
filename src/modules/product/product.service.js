@@ -50,13 +50,71 @@ async function createProduct({
   }
 }
 
-async function getProductById({ id }) {
+async function getProducts() {
   const query = `
     SELECT 
       p.*,
       COALESCE(
         json_agg(
           json_build_object('id', pi.id, 'imageUrl', pi.image_url, 'sortOrder', pi.sort_order) ORDER BY pi.sort_order ASC
+        ) FILTER (WHERE pi.id IS NOT NULL),
+        '[]'
+      ) AS product_images
+    FROM products p
+    LEFT JOIN product_images pi ON pi.product_id = p.id
+    GROUP BY p.id
+  `;
+  const result = await Pool.query(query);
+
+  if (result.rowCount == 0) {
+    const error = new Error("Ürün bulunamadı.");
+    error.code = "NOT_FOUND";
+    throw error;
+  }
+
+  const products = result.rows;
+  return products;
+}
+
+async function getProductsByStatus({ status }) {
+  const query = `
+    SELECT 
+      p.*,
+      COALESCE(
+        json_agg(
+          json_build_object('id', pi.id, 'imageUrl', pi.image_url, 'sortOrder', pi.sort_order) ORDER BY pi.sort_order ASC
+        ) FILTER (WHERE pi.id IS NOT NULL),
+        '[]'
+      ) AS product_images
+    FROM products p
+    LEFT JOIN product_images pi ON pi.product_id = p.id
+    WHERE p.status = $1
+    GROUP BY p.id
+  `;
+  const values = [status];
+  const result = await Pool.query(query, values);
+
+  // if (result.rowCount == 0) {
+  //   const error = new Error("Ürün bulunamadı.");
+  //   error.code = "NOT_FOUND";
+  //   throw error;
+  // }
+
+  const products = result.rows;
+  return products;
+}
+
+async function getProductById({ id }) {
+  const query = `
+    SELECT 
+      p.*,
+      COALESCE(
+        json_agg(
+          json_build_object(
+            'id', pi.id,
+            'imageUrl', pi.image_url,
+            'sortOrder', pi.sort_order
+          ) ORDER BY pi.sort_order ASC
         ) FILTER (WHERE pi.id IS NOT NULL),
         '[]'
       ) AS product_images
@@ -153,6 +211,22 @@ async function getProductsByFilter({
   return products;
 }
 
+async function getProductStats() {
+  const query = `
+    SELECT 
+      COUNT(*) AS total,
+      COUNT(*) FILTER (WHERE status = 'PENDING') AS pending,
+      COUNT(*) FILTER (WHERE status = 'APPROVED') AS active,
+      COUNT(*) FILTER (WHERE status = 'PASSIVE') AS passive,
+      COUNT(*) FILTER (WHERE status = 'REJECTED') AS rejected
+    FROM products
+  `;
+  const result = await Pool.query(query);
+
+  const productStats = result.rows[0];
+  return productStats;
+}
+
 /*------------------------*/
 /*--Update-Fonksiyonları--*/
 /*------------------------*/
@@ -163,7 +237,7 @@ async function updateProductDetail({
   sku = null,
   status = null,
 }) {
-  const query = `UPDATE products SET title = COALESCE($1, title), description = COALESCE($2, description), sku = COALESCE($3, sku), status = COALESCE($4, status) WHERE id = $5 RETURNING *`;
+  const query = `UPDATE products SET title = COALESCE($1, title), description = COALESCE($2, description), sku = COALESCE($3, sku), status = COALESCE($4, status), updated_at = now() WHERE id = $5 RETURNING *`;
   const values = [title, description, sku, status, id];
   const result = await Pool.query(query, values);
 
@@ -172,7 +246,7 @@ async function updateProductDetail({
 }
 
 async function updateProductStock({ id, stockQuantity }) {
-  const query = `UPDATE products SET stock_quantity = $1 WHERE id = $2 RETURNING *`;
+  const query = `UPDATE products SET stock_quantity = $1, updated_at = now() WHERE id = $2 RETURNING *`;
   const values = [stockQuantity, id];
   const result = await Pool.query(query, values);
 
@@ -181,7 +255,7 @@ async function updateProductStock({ id, stockQuantity }) {
 }
 
 async function updateProductPrice({ id, price = null, discountPrice = null }) {
-  const query = `UPDATE products SET price = COALESCE($1, price), discount_price = COALESCE($2, discount_price) WHERE id = $3 RETURNING *`;
+  const query = `UPDATE products SET price = COALESCE($1, price), discount_price = COALESCE($2, discount_price), updated_at = now() WHERE id = $3 RETURNING *`;
   const values = [price, discountPrice, id];
   const result = await Pool.query(query, values);
 
@@ -191,9 +265,12 @@ async function updateProductPrice({ id, price = null, discountPrice = null }) {
 
 export default {
   createProduct,
+  getProducts,
+  getProductsByStatus,
   getProductById,
   getProductsByStoreId,
   getProductsByFilter,
+  getProductStats,
   updateProductDetail,
   updateProductStock,
   updateProductPrice,

@@ -10,7 +10,7 @@ router.get("/", categoryController.getCategories);
 router.get("/:id", categoryController.getCategoryById);
 
 router.post(
-  "/create",
+  "/",
   authMiddleware,
   roleMiddleware.adminMiddleware,
   categoryController.createCategory,
@@ -21,6 +21,13 @@ router.patch(
   authMiddleware,
   roleMiddleware.adminMiddleware,
   categoryController.updateCategory,
+);
+
+router.delete(
+  "/:id",
+  authMiddleware,
+  roleMiddleware.adminMiddleware,
+  categoryController.deleteCategory,
 );
 
 export default router;

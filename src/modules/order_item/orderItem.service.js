@@ -23,8 +23,10 @@ async function createOrderItem({
 
 async function getOrderItemsByOrderId({ orderId }) {
   const query = `
-    SELECT * 
-    FROM order_items 
+    SELECT oi.*, p.title AS product_title
+    FROM order_items oi 
+    LEFT JOIN products p 
+      ON p.id = oi.product_id
     WHERE order_id = $1
   `;
   const values = [orderId];
